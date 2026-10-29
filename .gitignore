@@ -1,0 +1,6 @@
+data/
+runs/
+*.pt
+__pycache__/
+.ipynb_checkpoints/
+pregunta3_codigo.zip

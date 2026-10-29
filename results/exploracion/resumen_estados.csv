@@ -1,0 +1,6 @@
+split,con_caja,sin_caja,vacia,total
+train,12099,1454,0,13553
+cis_val,1665,824,995,3484
+trans_val,1533,131,61,1725
+cis_test,12696,1951,1180,15827
+trans_test,18033,3464,1778,23275
