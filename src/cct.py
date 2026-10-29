@@ -47,7 +47,9 @@ def cargar(dir_anot="data/raw/eccv_18_annotation_files"):
                     continue
                 x, y, w, h = a["bbox"]
                 filas_caja.append({
-                    "image_id": im["id"], "split": split, "category_id": a["category_id"],
+                    "ann_id": a["id"], "image_id": im["id"], "file_name": im["file_name"],
+                    "split": split, "category_id": a["category_id"],
+                    "img_w": im["width"], "img_h": im["height"],
                     "x": x, "y": y, "w": w, "h": h,
                     # el bbox esta en pixeles de la imagen ORIGINAL (width x height del json)
                     "area_rel": (w * h) / (im["width"] * im["height"]),

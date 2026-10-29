@@ -81,8 +81,8 @@ def main():
     imagenes["incluida"] = imagenes.motivo == ""
 
     if args.limite:
-        imagenes = (imagenes.groupby("split", group_keys=False)
-                    .apply(lambda g: g.sample(min(len(g), args.limite), random_state=args.semilla)))
+        imagenes = pd.concat([g.sample(min(len(g), args.limite), random_state=args.semilla)
+                              for _, g in imagenes.groupby("split")])
 
     rutas = {p.name: p for p in Path(args.imgs).rglob("*.jpg")}
     faltan = ~imagenes.file_name.isin(rutas)
