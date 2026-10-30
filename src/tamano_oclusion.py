@@ -57,8 +57,16 @@ def emparejar(gt, pred, umbral_iou=0.5):
     return gt
 
 
+def kappa(a, b):
+    """Kappa de Cohen entre dos etiquetados de las mismas cajas."""
+    p_obs = (a.to_numpy() == b.to_numpy()).mean()
+    pa, pb = a.value_counts(normalize=True), b.value_counts(normalize=True)
+    p_azar = sum(pa.get(c, 0) * pb.get(c, 0) for c in set(pa.index) | set(pb.index))
+    return (p_obs - p_azar) / (1 - p_azar) if p_azar < 1 else 1.0
+
+
 def resumen(gt, columna, orden):
-    t = gt.groupby(["split", columna]).agg(n=("recall", "size"), recall=("recall", "mean"),
+    t = gt.groupby(["split", columna], observed=False).agg(n=("recall", "size"), recall=("recall", "mean"),
                                            localizada=("localizada", "mean"))
     return t.reindex(pd.MultiIndex.from_product([["cis_test", "trans_test"], orden]))
 
@@ -119,6 +127,17 @@ def main():
         g_oc = gt.merge(oc, on="ann_id")
         tablas["Oclusion (etiquetado manual)"] = resumen(g_oc, "nivel", ["bajo", "medio", "alto"])
         g_oc.to_csv(out / "cajas_oclusion_emparejadas.csv", index=False)
+
+        # autoconsistencia del etiquetado: cajas re-etiquetadas a ciegas con --repetir
+        rep = Path(args.oclusion).with_name("etiquetas_oclusion_repeticion.csv")
+        if rep.exists():
+            r = pd.read_csv(rep)
+            r = r[r.nivel != "saltada"][["ann_id", "nivel"]].astype({"ann_id": str})
+            par = oc.merge(r, on="ann_id", suffixes=("_1", "_2"))
+            k = kappa(par.nivel_1, par.nivel_2)
+            acuerdo = (par.nivel_1 == par.nivel_2).mean()
+            print(f"\nautoconsistencia oclusion: n={len(par)}, acuerdo={acuerdo:.3f}, kappa={k:.3f}")
+            pd.Series({"n": len(par), "acuerdo": acuerdo, "kappa": k}).to_csv(out / "kappa_oclusion.csv", header=False)
     else:
         print("sin archivo de oclusion:", args.oclusion)
 
