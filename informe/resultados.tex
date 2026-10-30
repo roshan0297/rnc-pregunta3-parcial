@@ -1,0 +1,300 @@
+% Seccion de resultados (Pregunta 3). Pensada para la plantilla NeurIPS con
+% \usepackage[utf8]{inputenc}, \usepackage[spanish]{babel}, booktabs y graphicx.
+% Las figuras se copian desde MyDrive/pregunta3_runs/E3_principal/ a informe/figuras/.
+
+\section{Resultados}
+\label{sec:resultados}
+
+Todas las cifras de test se obtuvieron una sola vez con el modelo final (E3) y
+umbrales fijados de antemano en validación. La curva F1--confianza de
+validación alcanza su máximo ($F1=0{,}73$) en $0{,}45$ y es prácticamente plana
+entre $0{,}4$ y $0{,}6$; por eso se usó $\text{conf}=0{,}5$ en los análisis por
+caja, por tamaño y de monitoreo.
+
+\subsection{Ajuste fino y efecto de las imágenes vacías}
+
+El split \texttt{train} de CCT-20 no contiene imágenes vacías, aunque en campo
+la mayoría de los disparos lo son. Para medir si conviene enseñarle el fondo al
+modelo, entrenamos dos YOLOv8n idénticos (640~px, 30 épocas, misma semilla) que
+solo difieren en que E2 agrega 2\,286 imágenes vacías (20\,\% de las imágenes
+con animal) tomadas de ubicaciones que no pertenecen a CCT-20, de modo que no
+filtran información de las cámaras de validación ni de test.
+
+\begin{table}[h]
+  \centering
+  \caption{Efecto de las imágenes vacías en validación (\texttt{cis\_val} +
+  \texttt{trans\_val}, 4\,213 imágenes). ``Falsos disparos'': porcentaje de
+  imágenes vacías con al menos una detección de confianza $\geq 0{,}5$.}
+  \label{tab:vacias}
+  \begin{tabular}{lcccc}
+    \toprule
+    Experimento & mAP@0.5 & mAP@0.5:0.95 & Falsos disp. cis & Falsos disp. trans \\
+    \midrule
+    E1: YOLOv8n, sin vacías   & 0,730 & 0,486 & 6,0\,\% & 8,2\,\% \\
+    E2: YOLOv8n, +20\,\% vacías & 0,748 & 0,514 & 3,4\,\% & 4,9\,\% \\
+    E3: YOLOv8s, +20\,\% vacías & 0,784 & 0,539 & -- & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Agregar vacías no solo reduce casi a la mitad los falsos disparos, que era lo
+esperado, sino que también sube el mAP (+1,8 puntos en mAP@0.5 y +2,8 en
+mAP@0.5:0.95). Nuestra lectura es que, sin ejemplos negativos de escena
+completa, el modelo aprende a marcar como animal ciertas texturas del fondo
+(troncos, rocas, sombras) y esos falsos positivos penalizan la precisión. Con
+base en esto, el modelo principal E3 se entrenó sobre el conjunto con vacías,
+cambiando a YOLOv8s y 50 épocas. El entrenamiento se detuvo por
+\emph{early stopping} en la época 44 (mejor época: 34).
+
+\subsection{Desempeño por especie y efecto del desbalance}
+
+\begin{table}[h]
+  \centering
+  \caption{AP por especie en test, ordenado por número de cajas en
+  entrenamiento. $n$: instancias en cada test. Ciervo no aparece en
+  \texttt{trans\_test}.}
+  \label{tab:especies}
+  \small
+  \begin{tabular}{lrrrrrrr}
+    \toprule
+     & & \multicolumn{3}{c}{\texttt{cis\_test}} & \multicolumn{3}{c}{\texttt{trans\_test}} \\
+    \cmidrule(lr){3-5}\cmidrule(lr){6-8}
+    Especie & Cajas train & $n$ & AP50 & AP50:95 & $n$ & AP50 & AP50:95 \\
+    \midrule
+    zorro (fox)          &     5 &     2 & 0,224 & 0,184 &     1 & 0,000 & 0,000 \\
+    tejón (badger)       &     9 &     4 & 0,003 & 0,002 &    15 & 0,141 & 0,098 \\
+    ciervo (deer)        &    44 &   140 & 0,504 & 0,327 &     0 & --    & --    \\
+    zorrillo (skunk)     &   214 &   162 & 0,947 & 0,629 &   273 & 0,818 & 0,519 \\
+    roedor (rodent)      &   264 &   146 & 0,811 & 0,451 &    26 & 0,003 & 0,001 \\
+    ave (bird)           &   560 &   752 & 0,622 & 0,327 &   180 & 0,094 & 0,049 \\
+    lince (bobcat)       &   684 &   772 & 0,863 & 0,608 & 1\,979 & 0,703 & 0,470 \\
+    perro (dog)          &   769 &   725 & 0,765 & 0,527 &   961 & 0,707 & 0,476 \\
+    mapache (raccoon)    & 1\,030 &   981 & 0,932 & 0,616 & 4\,803 & 0,780 & 0,509 \\
+    ardilla (squirrel)   & 1\,037 &   510 & 0,724 & 0,393 &   782 & 0,296 & 0,162 \\
+    gato (cat)           & 1\,170 & 1\,528 & 0,933 & 0,626 & 1\,366 & 0,293 & 0,192 \\
+    coyote               & 1\,371 & 1\,182 & 0,922 & 0,699 & 1\,902 & 0,608 & 0,427 \\
+    conejo (rabbit)      & 2\,278 & 1\,559 & 0,901 & 0,570 &   722 & 0,642 & 0,342 \\
+    zarigüeya (opossum)  & 2\,514 & 4\,010 & 0,948 & 0,525 & 4\,663 & 0,885 & 0,470 \\
+    \midrule
+    \textbf{mAP}         &       & 12\,473 & \textbf{0,721} & \textbf{0,463} & 17\,673 & \textbf{0,459} & \textbf{0,286} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+La Tabla~\ref{tab:especies} muestra que el desbalance se nota sobre todo en los
+extremos. Las dos especies con menos de diez cajas de entrenamiento (zorro y
+tejón) no pasan de 0,22 de AP50, mientras que las cuatro especies con más de
+1\,100 cajas superan 0,90 de AP50 en \texttt{cis\_test}. La correlación de
+Spearman entre AP50 y número de cajas es $\rho=0{,}68$ ($p=0{,}008$, 14
+especies) en \texttt{cis\_test} y baja a $\rho=0{,}49$ ($p=0{,}09$, 13 especies)
+en \texttt{trans\_test} (Figura~\ref{fig:desbalance}). Hay que leer con cautela
+las especies raras: con 2 o 4 instancias de test, un solo acierto o fallo mueve
+el AP de 0 a 0,5, de modo que lo único que podemos afirmar es que el modelo no
+aprendió a detectarlas de forma confiable.
+
+El desbalance, sin embargo, no explica las peores caídas en cámaras nuevas. Gato
+(1\,170 cajas) cae de 0,93 a 0,29 y ardilla (1\,037) de 0,72 a 0,30, mientras que
+zorrillo, con solo 214 cajas, se mantiene en 0,82. Esa es la razón de que la
+correlación se debilite en \texttt{trans\_test}: fuera de las cámaras de
+entrenamiento, la cantidad de datos importa menos que la diversidad de escenas
+en las que aparece cada especie.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figuras/ap_vs_cajas_train.png}
+  \caption{AP50 por especie frente al número de cajas de entrenamiento (escala
+  logarítmica). Verde: \texttt{cis\_test}; rojo: \texttt{trans\_test}. Las
+  líneas discontinuas son solo una guía visual.}
+  \label{fig:desbalance}
+\end{figure}
+
+\subsection{Generalización a ubicaciones nuevas y aprendizaje del fondo}
+
+Entre \texttt{cis\_test} y \texttt{trans\_test} el mAP@0.5 cae de 0,721 a 0,459
+(-26 puntos) y el mAP@0.5:0.95 de 0,463 a 0,286. La caída viene sobre todo del
+recall (0,66 $\rightarrow$ 0,42); la precisión baja menos (0,87 $\rightarrow$
+0,67) y la tasa de falsos disparos en las vacías de test casi no cambia (3,6\,\%
+en cis frente a 4,3\,\% en trans). En otras palabras, en una cámara nueva el
+modelo deja de ver animales mucho más de lo que inventa.
+
+Para saber si el modelo aprendió el fondo de las cámaras de entrenamiento como
+atajo, aplicamos dos pruebas sobre 300 imágenes con un solo animal por split.
+
+\paragraph{Prueba de borrado.} Tapamos la caja del animal (con un margen de
+15\,\%) con el color medio de la imagen y volvimos a detectar. Si el modelo
+dependiera del contexto, debería seguir prediciendo la especie aunque el animal
+ya no esté. No ocurrió: en ningún caso la misma especie reapareció en la zona
+borrada, y solo hubo 1 de 300 casos en \texttt{cis\_test} (un conejo) y 2 de 300
+en \texttt{trans\_test} (dos ardillas) en que la especie se predijo en otra parte
+de la escena. El resultado es el mismo si nos quedamos solo con las imágenes que
+el modelo había detectado bien al principio (250 en cis y 210 en trans).
+
+\paragraph{EigenCAM.} Implementamos EigenCAM sobre la salida del bloque SPPF
+(capa 9, final del \emph{backbone}) y medimos qué fracción de la energía del
+mapa cae dentro de las cajas reales, normalizada por el área que ocupan
+(\emph{lift}; 1 equivale a no preferir al animal sobre el resto de la imagen).
+El lift mediano fue de 0,05--0,08 en todos los grupos, incluidas las detecciones
+correctas (Tabla~\ref{tab:eigencam}). Visualmente, el mapa se concentra en
+estructuras grandes de la escena (la franja de vegetación del horizonte, el
+borde del camino) y no en el animal (Figura~\ref{fig:eigencam}).
+
+\begin{table}[h]
+  \centering
+  \caption{EigenCAM en la capa 9: fracción de energía dentro de las cajas
+  reales, fracción de área que ocupan y lift mediano (150 imágenes por split).}
+  \label{tab:eigencam}
+  \begin{tabular}{llrccc}
+    \toprule
+    Split & Detección correcta & $n$ & Energía en cajas & Área de cajas & Lift mediano \\
+    \midrule
+    \texttt{cis\_test}   & sí  & 124 & 0,022 & 0,048 & 0,059 \\
+                         & no  &  26 & 0,060 & 0,068 & 0,083 \\
+    \texttt{trans\_test} & sí  &  97 & 0,022 & 0,033 & 0,047 \\
+                         & no  &  53 & 0,111 & 0,137 & 0,085 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{figuras/eigencam_ejemplos.png}
+  \caption{EigenCAM (capa 9). Fila superior: \texttt{cis\_test}; inferior:
+  \texttt{trans\_test}. Blanco: caja real; rojo discontinuo: predicción. Títulos
+  en rojo: detecciones fallidas.}
+  \label{fig:eigencam}
+\end{figure}
+
+Las dos pruebas parecen contradecirse, pero responden preguntas distintas.
+EigenCAM proyecta las activaciones sobre su primera componente principal, es
+decir, sobre la dirección de mayor varianza espacial; en una cámara fija, esa
+varianza la domina la estructura de la escena, no un animal que en esta muestra
+ocupa entre el 3 y el 14\,\% de la imagen. El mapa muestra entonces que la
+representación del \emph{backbone} está dominada por el fondo, pero no que la
+decisión de la cabeza de detección dependa de él, y la prueba de borrado indica
+que no depende. Concluimos que la caída cis$\rightarrow$trans no se explica por
+un atajo del tipo ``esta cámara $\Rightarrow$ esta especie'', sino por
+animales que el modelo no reconoce cuando cambian el fondo, el ángulo y la
+iluminación. Esto es coherente con que la pérdida sea de recall y no de
+precisión.
+
+La distribución de las especies entre las cámaras de entrenamiento apoya esta
+lectura, aunque solo de forma parcial. Las tres especies que más caen en
+\texttt{trans\_test} son las más concentradas en train: el 90\,\% de las cajas
+de roedor, el 88\,\% de las de gato y el 81\,\% de las de ave provienen de solo
+dos de las diez cámaras (el 74\,\% de los gatos, de la cámara 38). El modelo vio
+a esas especies casi siempre sobre el mismo fondo y con el mismo ángulo. En el
+otro extremo, zorrillo está repartido en siete cámaras (las dos principales
+suman el 57\,\%) y conserva 0,82 de AP50. Sin embargo, la relación no es
+general: considerando las 11 especies con datos suficientes, la correlación
+entre concentración y caída es débil ($\rho=0{,}33$, $p=0{,}32$). Ardilla está
+bien repartida y aun así cae 43 puntos, y zarigüeya está concentrada pero su
+abundancia la protege.
+% Si se repite EigenCAM en una capa del cuello (--capa 15), comparar aqui.
+
+\subsection{Robustez al tamaño y a la oclusión}
+
+Medimos el recall por caja (IoU $\geq 0{,}5$ y especie correcta) y, por
+separado, si la caja fue \emph{localizada} con cualquier especie. Así se
+distinguen los errores de localización de los de clasificación. Los cortes de
+tamaño se fijaron según el área relativa de la caja: pequeña $<1$\,\%, mediana
+1--5\,\% y grande $>5$\,\%.
+
+\begin{table}[h]
+  \centering
+  \caption{Recall y fracción localizada por tamaño de caja ($\text{conf}\geq0{,}5$).}
+  \label{tab:tamano}
+  \begin{tabular}{lrccrcc}
+    \toprule
+     & \multicolumn{3}{c}{\texttt{cis\_test}} & \multicolumn{3}{c}{\texttt{trans\_test}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    Tamaño & $n$ & Recall & Localizada & $n$ & Recall & Localizada \\
+    \midrule
+    Pequeña ($<1$\,\%)  & 1\,149 & 0,560 & 0,591 & 1\,924 & 0,346 & 0,376 \\
+    Mediana (1--5\,\%)  & 8\,929 & 0,844 & 0,895 & 12\,183 & 0,713 & 0,788 \\
+    Grande ($>5$\,\%)   & 2\,395 & 0,823 & 0,869 & 3\,566 & 0,462 & 0,637 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Los animales pequeños son el punto débil esperado: a 640~px, una caja del 1\,\%
+de una imagen de 1024 px queda en unos 60$\times$40 píxeles, y en esos casos casi
+todos los fallos son de localización (recall y localizada casi iguales). Lo
+inesperado está en las cajas grandes de \texttt{trans\_test}: el recall cae a
+0,46, por debajo del de las medianas, mientras que el 64\,\% de esas cajas sí se
+localiza. Es decir, el modelo encuentra al animal pero se equivoca de especie.
+Nuestra hipótesis es que se trata de animales muy cerca del lente, cortados por
+el borde del encuadre o sobreexpuestos por el flash infrarrojo, situaciones en
+las que se pierden la silueta y la textura que distinguen, por ejemplo, a un
+gato de un lince.
+% TODO: confirmar mirando 10-20 cajas grandes de trans_test con recall=False y
+% localizada=True (tamano_oclusion/cajas_emparejadas.csv).
+
+% TODO: completar con etiquetas_oclusion.csv (300 cajas, 3 niveles) y el kappa
+% de autoconsistencia sobre las 50 repetidas.
+\paragraph{Oclusión.} \textit{[Pendiente: recall por nivel de oclusión (bajo
+$<25$\,\%, medio 25--60\,\%, alto $>60$\,\%) sobre 150 cajas por split etiquetadas
+manualmente, y $\kappa$ de autoconsistencia sobre 50 cajas re-etiquetadas a
+ciegas.]}
+
+\subsection{Módulo de monitoreo en una cámara no vista}
+
+% TODO: \label{sec:metodo} debe existir en la seccion de metodo del informe.
+Aplicamos el módulo de monitoreo (reglas R1--R5, sección~\ref{sec:metodo}) a la
+cámara 46 de \texttt{trans\_test}, la de más fotos entre las cámaras que el
+modelo nunca vio: 6\,276 fotos entre mayo de 2011 y junio de 2012, agrupadas en
+1\,383 eventos. El mismo procedimiento aplicado a las etiquetas reales da el
+reporte que se obtendría revisando las fotos a mano, y sirve de referencia
+(Tabla~\ref{tab:monitoreo} y Figura~\ref{fig:actividad}).
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figuras/actividad_hora_camara46.png}
+  \caption{Cámara 46 (no vista en entrenamiento): eventos por hora del día para
+  las cuatro especies más frecuentes, según el modelo (naranja) y según la
+  revisión manual (negro).}
+  \label{fig:actividad}
+\end{figure}
+
+\begin{table}[h]
+  \centering
+  \caption{Reporte de la cámara 46: modelo frente a revisión manual.}
+  \label{tab:monitoreo}
+  \begin{tabular}{lcc}
+    \toprule
+    Indicador & Modelo & Real \\
+    \midrule
+    Fotos vacías                         & 55,5\,\% & 11,6\,\% \\
+    Eventos vacíos                       & 31,8\,\% & 16,1\,\% \\
+    Especies registradas                 & 10 & 12 \\
+    Acierto de especie por evento        & \multicolumn{2}{c}{75,0\,\%} \\
+    Eventos con animal marcados vacíos   & \multicolumn{2}{c}{221 de 1\,161 (19\,\%)} \\
+    Eventos vacíos marcados con animal   & \multicolumn{2}{c}{3} \\
+    \midrule
+    \% nocturno zarigüeya / mapache      & 0,87 / 0,89 & 0,87 / 0,90 \\
+    \% nocturno zorrillo / lince         & 0,76 / 0,50 & 0,81 / 0,55 \\
+    Eventos zarigüeya / lince / coyote   & 319 / 203 / 134 & 344 / 232 / 168 \\
+    Eventos gato / ave / roedor          & 55 / 3 / 0 & 5 / 25 / 14 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Agrupar en eventos compensa buena parte de los errores por foto: aunque el
+modelo deja sin detección a más de la mitad de las fotos, basta con que acierte
+en una foto de la ráfaga para registrar el evento, y la diferencia en eventos
+vacíos se reduce a la mitad (31,8\,\% frente a 16,1\,\%). Para las especies
+abundantes, los indicadores que usaría un equipo de manejo se reproducen bien:
+la fracción de eventos nocturnos difiere a lo sumo en 0,05 para zarigüeya,
+mapache, zorrillo y lince, y el número de eventos de zarigüeya, lince y coyote
+se subestima entre un 7 y un 20\,\%. El mapache es la excepción: la
+proporción nocturna se conserva, pero el modelo registra 74 eventos frente a
+175 reales. Los errores más graves se concentran en dos grupos. Las especies pequeñas (ave y
+roedor) casi desaparecen del reporte, en línea con el recall de las cajas
+pequeñas. En cambio, el gato aparece sobrerrepresentado (55 eventos frente a 5
+reales).
+% TODO: confirmar con confusion_eventos.csv de que especie vienen los "gatos".
+La causa más probable es una confusión con lince, la especie similar más
+frecuente en esta cámara. En la práctica, el módulo es útil para estimar
+patrones de actividad de las especies comunes, pero no para inventarios de
+especies raras o pequeñas, y no permite prescindir de la revisión humana de
+los eventos que marca como vacíos, donde se esconde el 19\,\% de los eventos con
+animal.
