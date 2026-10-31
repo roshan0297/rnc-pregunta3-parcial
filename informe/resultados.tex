@@ -24,8 +24,10 @@ filtran información de las cámaras de validación ni de test.
   \centering
   \caption{Efecto de las imágenes vacías en validación (\texttt{cis\_val} +
   \texttt{trans\_val}, 4\,213 imágenes). ``Falsos disparos'': porcentaje de
-  imágenes vacías con al menos una detección de confianza $\geq 0{,}5$. Para E3
-  esta tasa se midió solo en test (Sección~\ref{sec:cistrans}).}
+  imágenes vacías con al menos una detección de confianza $\geq 0{,}5$
+  (995 vacías en cis y 61 en trans). $^{*}$Para E3 se midió sobre las imágenes a
+  resolución original, no sobre la versión reducida, por lo que no es
+  estrictamente comparable con E1 y E2.}
   \label{tab:vacias}
   \begin{tabular}{lcccc}
     \toprule
@@ -33,7 +35,7 @@ filtran información de las cámaras de validación ni de test.
     \midrule
     E1: YOLOv8n, sin vacías   & 0,730 & 0,486 & 6,0\,\% & 8,2\,\% \\
     E2: YOLOv8n, +20\,\% vacías & 0,748 & 0,514 & 3,4\,\% & 4,9\,\% \\
-    E3: YOLOv8s, +20\,\% vacías & 0,784 & 0,539 & -- & -- \\
+    E3: YOLOv8s, +20\,\% vacías & 0,784 & 0,539 & 5,1\,\%$^{*}$ & 3,3\,\%$^{*}$ \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -237,12 +239,38 @@ modelo recurre a la especie más parecida: la confusión dominante es mapache
 $\rightarrow$ coyote (251 cajas, el 40\,\% de estos errores), seguida de
 gato $\rightarrow$ coyote (65) y coyote $\rightarrow$ gato (56).
 
-% TODO: completar con etiquetas_oclusion.csv (300 cajas, 3 niveles) y el kappa
-% de autoconsistencia sobre las 50 repetidas.
-\paragraph{Oclusión.} \textit{[Pendiente: recall por nivel de oclusión (bajo
-$<25$\,\%, medio 25--60\,\%, alto $>60$\,\%) sobre 150 cajas por split etiquetadas
-manualmente, y $\kappa$ de autoconsistencia sobre 50 cajas re-etiquetadas a
-ciegas.]}
+\paragraph{Oclusión.} De las 300 cajas de la muestra, 273 pudieron juzgarse
+(27 se saltaron porque el animal no se distingue); 172 quedaron con oclusión
+baja, 89 media y 12 alta. La Tabla~\ref{tab:oclusion} muestra un patrón claro:
+el recall baja con la oclusión en ambos tests, y la caída es más fuerte en
+cámaras nuevas. Con oclusión media, el recall pasa de 0,74 en
+\texttt{cis\_test} a 0,52 en \texttt{trans\_test}, mientras que con oclusión
+baja la diferencia es menor (0,91 frente a 0,82). Es decir, ver solo una parte
+del animal ya es difícil en una cámara conocida, y en una cámara nueva el
+modelo no tiene el contexto familiar que le ayudaba a completar la silueta. La
+oclusión alta tiene muy pocos casos (2 y 10), así que solo indica la tendencia.
+Los cortes del encuadre cuentan como oclusión, lo que conecta este resultado
+con el de las cajas grandes que tocan el borde.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Recall y fracción localizada por nivel de oclusión ($\text{conf}\geq0{,}5$),
+  sobre 150 cajas por split.}
+  \label{tab:oclusion}
+  \begin{tabular}{lrccrcc}
+    \toprule
+     & \multicolumn{3}{c}{\texttt{cis\_test}} & \multicolumn{3}{c}{\texttt{trans\_test}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    Oclusión & $n$ & Recall & Localizada & $n$ & Recall & Localizada \\
+    \midrule
+    Baja ($<25$\,\%)   & 96 & 0,906 & 0,948 & 76 & 0,816 & 0,855 \\
+    Media (25--60\,\%) & 43 & 0,744 & 0,744 & 46 & 0,522 & 0,630 \\
+    Alta ($>60$\,\%)   &  2 & 0,500 & 0,500 & 10 & 0,100 & 0,100 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% TODO: cuando exista etiquetas_oclusion_repeticion.csv (50 cajas re-etiquetadas
+% por una persona), agregar aqui el kappa que imprime tamano_oclusion.py.
 
 \subsection{Módulo de monitoreo en una cámara no vista}
 

@@ -132,7 +132,7 @@ def main():
         oc["ann_id"] = oc.ann_id.astype(str)
         gt["ann_id"] = gt.ann_id.astype(str)
         g_oc = gt.merge(oc, on="ann_id")
-        tablas["Oclusion (etiquetado manual)"] = resumen(g_oc, "nivel", ["bajo", "medio", "alto"])
+        tablas["Oclusion (muestra etiquetada)"] = resumen(g_oc, "nivel", ["bajo", "medio", "alto"])
         g_oc.to_csv(out / "cajas_oclusion_emparejadas.csv", index=False)
 
         # autoconsistencia del etiquetado: cajas re-etiquetadas a ciegas con --repetir
