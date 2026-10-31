@@ -89,7 +89,8 @@ def etiquetar(cajas, carpeta, salida, mostrar_previa):
         titulo = f"[{estado['i'] + 1}/{len(pendientes)}] {c.especie}"
         if mostrar_previa:
             titulo += f" ({c.split})"
-        fig.suptitle(titulo + "    1=bajo <25%   2=medio 25-60%   3=alto >60%   s=saltar   q=salir")
+        fig.suptitle(titulo + "    ¿Cuánto del animal está TAPADO?  1 = casi nada (<25%)   2 = la mitad (25-60%)"
+                     "   3 = casi todo (>60%)   s = no se distingue   q = salir")
         fig.canvas.draw_idle()
 
     def tecla(ev):

@@ -269,8 +269,21 @@ con el de las cajas grandes que tocan el borde.
     \bottomrule
   \end{tabular}
 \end{table}
-% TODO: cuando exista etiquetas_oclusion_repeticion.csv (50 cajas re-etiquetadas
-% por una persona), agregar aqui el kappa que imprime tamano_oclusion.py.
+
+\paragraph{Fiabilidad del etiquetado.} Un anotador humano re-etiquetó a ciegas
+50 de las cajas. El acuerdo con el modelo de visión fue nulo (0\,\%,
+$\kappa=-0{,}21$), pero no al azar: la tabla de contingencia es un espejo casi
+exacto. De las 33 cajas que el modelo marcó con oclusión baja, el humano marcó
+29 como alta, y las 3 que el modelo marcó como alta, el humano las marcó como
+baja. Ese patrón es el que produce una escala leída al revés (``cuánto se ve''
+en lugar de ``cuánto está tapado''), algo que la primera versión de la
+herramienta permitía porque su leyenda no decía a qué se refería el porcentaje.
+Si se lee la escala humana como visibilidad, el acuerdo sube al 64\,\%
+($\kappa=0{,}23$, acuerdo bajo). En cualquiera de las dos lecturas, las
+etiquetas de oclusión no son lo bastante fiables para conclusiones firmes: la
+tendencia de la Tabla~\ref{tab:oclusion} es coherente con la del tamaño y la de
+los bordes, pero debe tomarse como exploratoria. Corregimos la leyenda de la
+herramienta para preguntar explícitamente cuánto del animal está tapado.
 
 \subsection{Módulo de monitoreo en una cámara no vista}
 

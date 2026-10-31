@@ -80,7 +80,9 @@ Los animales pequeños fallan en ambos tests, como se esperaba. Lo inesperado so
 **[Diap. 16 · Oclusión]**
 CCT-20 no anota la oclusión, así que armamos una muestra de 300 cajas y le pusimos a cada una un nivel según qué parte del animal no se ve. El patrón es claro: con oclusión baja el recall es 0,91 en cis y 0,82 en trans; con oclusión media baja a 0,74 y 0,52. Ver solo una parte del animal ya es difícil, y en una cámara nueva lo es mucho más.
 
-*Si preguntan cómo se etiquetó:* "Por tiempo, el etiquetado inicial lo hizo un modelo de visión siguiendo el criterio, y una persona re-etiqueta 50 cajas a ciegas para medir el acuerdo con kappa de Cohen". Dilo así: es lo que figura en el informe.
+Un aviso honesto: este análisis es exploratorio. Cuando una persona re-etiquetó 50 cajas a ciegas, el acuerdo salió en espejo, porque la escala se leyó al revés. Leída como visibilidad, el kappa es 0,23, un acuerdo bajo. La tendencia coincide con la del tamaño y los bordes, pero no sacamos conclusiones firmes de ella.
+
+*Si preguntan cómo se etiquetó:* "Por tiempo, el etiquetado inicial lo hizo un modelo de visión siguiendo el criterio, y una persona re-etiquetó 50 cajas a ciegas para medir el acuerdo. La leyenda de nuestra herramienta era ambigua y la escala se leyó al revés; ya la corregimos. Una versión definitiva necesitaría dos anotadores humanos". Dilo así: es lo que figura en el informe.
 
 ---
 
