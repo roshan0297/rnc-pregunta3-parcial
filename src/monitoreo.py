@@ -29,6 +29,9 @@ import pandas as pd
 from cct import cargar
 
 NOCHE = set(range(19, 24)) | set(range(0, 6))
+NOMBRES = {"opossum": "zarigüeya", "bobcat": "lince", "raccoon": "mapache", "coyote": "coyote",
+           "rabbit": "conejo", "cat": "gato", "dog": "perro", "skunk": "zorrillo", "bird": "ave",
+           "rodent": "roedor", "squirrel": "ardilla", "deer": "ciervo", "fox": "zorro", "badger": "tejón"}
 
 
 def conteos_modelo(pred, conf):
@@ -154,16 +157,18 @@ def main():
 
     # actividad por hora del dia, modelo vs real, especies principales
     top = ev.loc[ev.especie_real != "vacio", "especie_real"].value_counts().index[:4]
-    fig, axes = plt.subplots(1, len(top), figsize=(4 * len(top), 3), squeeze=False)
+    fig, axes = plt.subplots(1, len(top), figsize=(2.9 * len(top), 2.8), squeeze=False)
     for ax, esp in zip(axes[0], top):
         for col, color, et in [("especie_real", "black", "real"), ("especie_modelo", "tab:orange", "modelo")]:
             h = ev.loc[ev[col] == esp, "inicio"].dt.hour
             ax.hist(h, bins=24, range=(0, 24), histtype="step", lw=2, color=color, label=et)
-        ax.set_title(esp)
-        ax.set_xlabel("hora")
-    axes[0, 0].set_ylabel("eventos")
-    axes[0, 0].legend()
-    fig.suptitle(f"Camara {args.ubicacion}: actividad por hora (eventos)")
+        ax.set_title(NOMBRES.get(esp, esp), fontsize=12)
+        ax.set_xlabel("hora del día", fontsize=11)
+        ax.set_xticks([0, 6, 12, 18, 24])
+        ax.tick_params(labelsize=10)
+    axes[0, 0].set_ylabel("eventos", fontsize=11)
+    axes[0, 0].legend(fontsize=10)
+    fig.suptitle(f"Cámara {args.ubicacion}: actividad por hora (eventos)", fontsize=12)
     fig.tight_layout()
     fig.savefig(out / "actividad_hora.png", dpi=150)
     print("\nresultados en", out)

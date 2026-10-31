@@ -110,18 +110,22 @@ def main():
     print("\npor especie:\n", por_esp.round(3))
 
     if ejemplos:
-        fig, axes = plt.subplots(2, 4, figsize=(14, 6))
+        # solo tantos paneles como ejemplos: una grilla fija deja huecos en blanco
+        cols = min(len(ejemplos), 4)
+        filas_fig = -(-len(ejemplos) // cols)
+        fig, axes = plt.subplots(filas_fig, cols, figsize=(4.5 * cols, 3.6 * filas_fig), squeeze=False)
         for ax in axes.flat:
             ax.axis("off")
         for ax, (img, zona, preds, f) in zip(axes.flat, ejemplos):
             ax.imshow(img)
-            ax.add_patch(patches.Rectangle(zona[:2], *(zona[2:] - zona[:2]), fill=False, ec="white", ls=":"))
+            ax.add_patch(patches.Rectangle(zona[:2], *(zona[2:] - zona[:2]), fill=False, ec="white", lw=2, ls=":"))
             for (x1, y1, x2, y2), e, s in preds:
-                ax.add_patch(patches.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, ec="red", lw=1.5))
-                ax.text(x1, y1, f"{e} {s:.2f}", color="red", fontsize=7, va="bottom")
-            ax.set_title(f"{f['split']}: {f['especie']} borrado", fontsize=8)
+                ax.add_patch(patches.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, ec="red", lw=2))
+                ax.text(x1, y1, f"{e} {s:.2f}", color="red", fontsize=12, va="bottom",
+                        bbox=dict(facecolor="white", alpha=0.7, pad=1, lw=0))
+            ax.set_title(f"{f['split']}: {f['especie']} borrado", fontsize=12)
         fig.tight_layout()
-        fig.savefig(out / "borrado_ejemplos.png", dpi=120)
+        fig.savefig(out / "borrado_ejemplos.png", dpi=120, bbox_inches="tight")
 
 
 if __name__ == "__main__":
