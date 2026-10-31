@@ -146,13 +146,14 @@ def main():
                 ax.add_patch(patches.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, ec="white", lw=1.5))
             for (x1, y1, x2, y2), e in preds:
                 ax.add_patch(patches.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, ec="red", lw=1, ls="--"))
-            ax.set_title(f"{split} loc {fila.location}\n{fila.especie} -> {fila.pred} | lift {fila.lift:.1f}",
-                         fontsize=7, color="black" if fila.deteccion_correcta else "red")
+            ax.set_title(f"{split.replace('_test', '')} · cám. {fila.location}\n"
+                         f"{fila.especie} → {fila.pred} | lift {fila.lift:.1f}",
+                         fontsize=13, color="black" if fila.deteccion_correcta else "red")
         for ax in fila_ax:
             ax.axis("off")
-    fig.suptitle("EigenCAM (capa %d). Blanco: caja real, rojo: prediccion" % args.capa, fontsize=9)
+    fig.suptitle("EigenCAM (capa %d). Blanco: caja real, rojo: predicción" % args.capa, fontsize=15)
     fig.tight_layout()
-    fig.savefig(out / "eigencam_ejemplos.png", dpi=130)
+    fig.savefig(out / "eigencam_ejemplos.png", dpi=110, bbox_inches="tight")
 
 
 if __name__ == "__main__":

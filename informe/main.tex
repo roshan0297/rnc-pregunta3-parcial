@@ -17,6 +17,7 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{xcolor}
+\usepackage{float}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
 
@@ -98,7 +99,7 @@ EigenCAM~\cite{muhammad2020eigencam}, más fácil de aplicar a un detector.
 \label{sec:datos}
 
 Usamos CCT-20~\cite{beery2018terra}: 57\,864 fotos de 20 cámaras del suroeste
-de Estados Unidos con 15 categorías (13 especies, \emph{car} y \emph{empty}),
+de Estados Unidos con 16 categorías (14 especies, \emph{car} y \emph{empty}),
 en la versión reducida a 1024~px de lado mayor. Los splits oficiales separan
 las cámaras: \texttt{train}, \texttt{cis\_val} y \texttt{cis\_test} comparten
 las mismas 10 cámaras, mientras que \texttt{trans\_val} (1 cámara) y
@@ -293,31 +294,45 @@ desde la descarga hasta los análisis, se ejecuta con
 }
 
 % =====================================================================
+\clearpage
 \appendix
 \section{Elección del umbral de confianza}
 \label{app:f1}
 
-\begin{figure}[h]
+La curva se calcula sobre validación (\texttt{cis\_val} + \texttt{trans\_val});
+el umbral no se ajustó en test.
+
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.75\linewidth]{figuras/f1_validacion.png}
+  \includegraphics[width=0.6\linewidth]{figuras/f1_validacion.png}
   \caption{Curva F1--confianza de E3 en validación. El máximo promedio
   ($F1=0{,}73$) se alcanza en 0,45 y la curva es plana entre 0,4 y 0,6.}
 \end{figure}
 
 \section{Ejemplos de la prueba de borrado}
+\label{app:borrado}
 
-\begin{figure}[h]
+De las 600 imágenes de la prueba (300 por split), solo en estas tres el modelo
+volvió a predecir la especie del animal borrado, y siempre fuera de la zona
+tapada.
+
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figuras/borrado_ejemplos.png}
-  \caption{Los pocos casos en que, tras borrar al animal (rectángulo punteado),
-  el modelo vuelve a predecir la misma especie.}
+  \includegraphics[width=0.9\linewidth]{figuras/borrado_ejemplos.png}
+  \caption{Casos en que, tras borrar al animal (rectángulo punteado blanco), el
+  modelo vuelve a predecir la misma especie (rojo) en otra parte de la escena.}
 \end{figure}
 
+\clearpage
 \section{Recall por tamaño de caja}
+\label{app:tamano}
 
-\begin{figure}[h]
+Versión gráfica de la Tabla~\ref{tab:tamano}; bajo cada par de barras se indica
+el número de cajas en \texttt{cis\_test} / \texttt{trans\_test}.
+
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\linewidth]{figuras/recall_tamano.png}
+  \includegraphics[width=0.6\linewidth]{figuras/recall_tamano.png}
   \caption{Recall (IoU $\geq 0{,}5$, especie correcta) por tamaño de caja en
   \texttt{cis\_test} (verde) y \texttt{trans\_test} (rojo).}
 \end{figure}

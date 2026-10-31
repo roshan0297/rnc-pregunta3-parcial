@@ -71,17 +71,24 @@ def resumen(gt, columna, orden):
     return t.reindex(pd.MultiIndex.from_product([["cis_test", "trans_test"], orden]))
 
 
+ETIQUETAS = {"pequena": "pequeña\n(<1 %)", "mediana": "mediana\n(1–5 %)", "grande": "grande\n(>5 %)",
+             "bajo": "baja\n(<25 %)", "medio": "media\n(25–60 %)", "alto": "alta\n(>60 %)"}
+
+
 def grafico(tablas, out):
-    fig, axes = plt.subplots(1, len(tablas), figsize=(5 * len(tablas), 3.8), squeeze=False)
+    fig, axes = plt.subplots(1, len(tablas), figsize=(5 * len(tablas), 3.6), squeeze=False)
     for ax, (titulo, t) in zip(axes[0], tablas.items()):
-        u = t.recall.unstack(0)
-        u.plot.bar(ax=ax, color=["tab:green", "tab:red"], rot=0)
-        for k, (grupo, fila) in enumerate(t.n.unstack(0).iterrows()):
-            ax.text(k, 0.02, " / ".join(str(int(v)) if v == v else "0" for v in fila), ha="center", fontsize=7)
+        orden = list(dict.fromkeys(t.index.get_level_values(1)))   # unstack ordena alfabeticamente
+        u = t.recall.unstack(0).reindex(orden)
+        u.index = [ETIQUETAS.get(g, g) for g in u.index]
+        u.plot.bar(ax=ax, color=["tab:green", "tab:red"], rot=0, fontsize=11)
+        for k, fila in enumerate(t.n.unstack(0).reindex(orden).itertuples(index=False)):
+            ax.text(k, 0.02, " / ".join(str(int(v)) if v == v else "0" for v in fila), ha="center", fontsize=9)
         ax.set_ylim(0, 1)
-        ax.set_title(titulo)
-        ax.set_ylabel("recall (IoU>=0.5, especie correcta)")
+        ax.set_title(titulo.replace("Tamano", "Tamaño").replace("Oclusion", "Oclusión"), fontsize=12)
+        ax.set_ylabel("recall (IoU ≥ 0,5, especie correcta)", fontsize=11)
         ax.set_xlabel("")
+        ax.legend(fontsize=10)
     fig.tight_layout()
     fig.savefig(out / "recall_tamano_oclusion.png", dpi=150)
 
