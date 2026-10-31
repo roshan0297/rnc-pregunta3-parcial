@@ -274,8 +274,11 @@ entrenamiento fue bajo (unas pocas horas de una GPU T4), pero no nulo.
 Este trabajo tiene limitaciones claras. Cada configuración se entrenó una sola
 vez con una semilla, por lo que diferencias pequeñas (como el +1,8 de mAP de
 E2 sobre E1) no tienen intervalo de confianza. Las especies con menos de 10
-instancias de test no permiten conclusiones. Las etiquetas de oclusión vienen de un modelo de visión y de una
-muestra pequeña (solo 12 cajas con oclusión alta), y EigenCAM sobre el \emph{backbone} resultó
+instancias de test no permiten conclusiones. Las etiquetas de oclusión vienen de un modelo de visión, su
+acuerdo con un anotador humano no fue satisfactorio y la muestra es pequeña
+(solo 12 cajas con oclusión alta), así que ese análisis es exploratorio; una
+versión definitiva necesitaría dos anotadores humanos con la escala ya
+corregida. EigenCAM sobre el \emph{backbone} resultó
 poco informativo sobre la decisión del detector; un mapa basado en gradientes
 de la puntuación de cada caja sería el siguiente paso.
 
