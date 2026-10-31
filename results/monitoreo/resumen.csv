@@ -1,0 +1,13 @@
+camara,46
+fotos,6276
+periodo,2011-05-03 a 2012-06-13
+eventos,1383
+pct_fotos_vacias_modelo,0.5554493307839388
+pct_fotos_vacias_real,0.11567877629063097
+pct_eventos_vacios_modelo,0.31814895155459144
+pct_eventos_vacios_real,0.16052060737527116
+especies_modelo,10
+especies_real,12
+acierto_especie_por_evento,0.749819233550253
+eventos_con_animal_perdidos,221
+eventos_falsos_con_animal,3
