@@ -178,6 +178,11 @@ def main():
     correr("tamano_oclusion.py", "--pred", pred, "--anot", anot, "--conf", conf,
            "--oclusion", RAIZ / "results" / "oclusion" / "etiquetas_oclusion.csv", "--out", out / "tamano_oclusion")
 
+    paso("10b. Verificaciones: Spearman, concentracion por camara, cajas del borde, acuerdo de oclusion")
+    correr("verificaciones.py", "--anot", anot, "--pred", pred, "--cajas", out / "tamano_oclusion" / "cajas_emparejadas.csv",
+           "--ap", out / "desbalance" / "ap_vs_cajas_train.csv", "--oclusion", RAIZ / "results" / "oclusion",
+           "--out", out / "verificaciones")
+
     paso("11. Entregable 3: EigenCAM y prueba de borrado")
     if args.rehacer_analisis or not (out / "eigencam" / "eigencam_resumen.csv").exists():
         correr("eigencam.py", "--pesos", best_e3, "--anot", anot, "--imgs", imgs, "--conf", conf,

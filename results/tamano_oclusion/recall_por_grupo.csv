@@ -1,0 +1,13 @@
+analisis,,,n,recall,localizada
+Tamano relativo de la caja,cis_test,pequena,1149,0.5604873803307223,0.5909486510008704
+Tamano relativo de la caja,cis_test,mediana,8929,0.8438794937842984,0.8952850263187367
+Tamano relativo de la caja,cis_test,grande,2395,0.8225469728601252,0.8693110647181629
+Tamano relativo de la caja,trans_test,pequena,1924,0.34615384615384615,0.37577962577962576
+Tamano relativo de la caja,trans_test,mediana,12183,0.7134531724534187,0.7879832553558237
+Tamano relativo de la caja,trans_test,grande,3566,0.46158160403813797,0.6368480089736399
+Oclusion (muestra etiquetada),cis_test,bajo,96,0.90625,0.9479166666666666
+Oclusion (muestra etiquetada),cis_test,medio,43,0.7441860465116279,0.7441860465116279
+Oclusion (muestra etiquetada),cis_test,alto,2,0.5,0.5
+Oclusion (muestra etiquetada),trans_test,bajo,76,0.8157894736842105,0.8552631578947368
+Oclusion (muestra etiquetada),trans_test,medio,46,0.5217391304347826,0.6304347826086957
+Oclusion (muestra etiquetada),trans_test,alto,10,0.1,0.1
