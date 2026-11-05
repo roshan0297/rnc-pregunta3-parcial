@@ -2,8 +2,8 @@
 
 Ajuste fino de YOLOv8 sobre Caltech Camera Traps (CCT-20), evaluación en cámaras vistas (`cis`) y nuevas (`trans`), análisis de desbalance, fondo, tamaño y oclusión, y un módulo de monitoreo ecológico.
 
-- **Informe:** `informe/main.pdf` (fuente LaTeX en `informe/`; `informe_overleaf.zip` se sube tal cual a Overleaf).
-- **Presentación:** `presentacion/presentacion_pregunta3_grupo6.pptx`, con el guion en `presentacion/speech_pregunta3.md`.
+- **Informe:** `informe/main.pdf`
+- **Presentación:** `presentacion/presentacion_pregunta3_grupo6.pptx`
 
 ## Estructura
 
